@@ -1,3 +1,1 @@
-# vug
-
-![Caption.](map_anim.gif)
+# vug in r
