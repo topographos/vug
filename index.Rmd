@@ -4,6 +4,7 @@ author: "Michal Michalski"
 date: "29/05/2020"
 output: 
   html_document:
+    code_folding: hide
     theme: flatly
     highlight: tango
     code_download: true
@@ -40,10 +41,13 @@ library(ggmap)
 
 ```
 
-## Chronological Map of Edinburgh
+## Chronological Map
+
 Chronological Map of Edinburgh Showing the Expansion of the City 1919 created by John George Bartholomew.
 
 ### Data
+
+First we are going to load the data.
 
 ```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 # load the shp
@@ -60,7 +64,9 @@ period_labels = c("pre 1450","1450 - 1515","1515 - 1622","1622 - 1750",
 
 ### Animation
 
-```{r message=FALSE, warning=FALSE, paged.print=FALSE, echo=TRUE}
+Now, we can create the animated map
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 
 #plot map for animation
 map = ggplot() + 
@@ -116,8 +122,10 @@ anim_save("map_anim.gif", map, width = 800,height = 600)
 ```
 
 ## Occupations
-Selection of Edinburgh profession from 1911.
-```{r}
+
+Here we will map a selection of Edinburgh professions in 1911.
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
 occupations_edi = read_csv("data/processed/occupations.csv")
 
 base_plot = qmplot(
@@ -145,7 +153,7 @@ base_plot +
   facet_wrap(~ occupation)
 ```
 
-
+Short and sweet !
 
 ```{r}
 sessionInfo()
@@ -155,4 +163,4 @@ sessionInfo()
 &nbsp;
 <hr />
 <p style="text-align: center;">A work by <a href="https://github.com/topographos/">Michal Michalski</a></p>
-<p style="text-align: center;"><span style="color: #808080;"><em>michal.m.michalski@durham.ac.uk</em></span></p>
+<p style="text-align: center;"><span style="color: #808080;">
