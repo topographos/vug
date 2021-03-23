@@ -1,0 +1,158 @@
+---
+title: "VUG in R"
+author: "Michal Michalski"
+date: "29/05/2020"
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    code_download: true
+    toc: true
+    toc_float: 
+      collapsed: true
+      smooth_scroll: false
+  
+---
+<style>
+div.blue { background-color:#D3D3D3; border-radius: 5px; padding: 20px;}
+</style>
+<div class = "blue">
+Visualising Urban Geographies was a project by Edinburgh University that iprovided an amazing collection of geo-referenced maps, geographic boundaries and socio econoic maps - [Project Website](https://geo.nls.uk/urbhist/).
+Here I use some of them to create a vizualizations in R.
+</div>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Packages
+
+```{r packages, echo=TRUE, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(sf)
+library(ggplot2)
+library(gganimate)
+library(ggpomological)
+library(magick)
+library(dplyr)
+library(readr)
+library(ggmap)
+
+```
+
+## Chronological Map of Edinburgh
+Chronological Map of Edinburgh Showing the Expansion of the City 1919 created by John George Bartholomew.
+
+### Data
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+# load the shp
+chrono_map = st_read("data/spatial/bart_chrono_1919.shp", quiet = TRUE)
+
+#period colors
+period_colors = c("#851613","#C83B42","#DE7B80","#F0AEB1",
+                  "#135D89","#4D95BA","#96D1EA","#52442F","#BEB3A1","#F0E7D9")
+#period labels
+period_labels = c("pre 1450","1450 - 1515","1515 - 1622","1622 - 1750",
+                  "1750 - 1800 ","1800 - 1825","1825 - 1850","1850 - 1875",
+                  "1875 - 1900","since 1900")
+```
+
+### Animation
+
+```{r message=FALSE, warning=FALSE, paged.print=FALSE, echo=TRUE}
+
+#plot map for animation
+map = ggplot() + 
+  geom_sf(
+    data = chrono_map,
+    aes(fill= as.factor(End_Date)),
+    alpha = 0.75, 
+    colour = NA) +
+  scale_fill_manual(name = "End of {current_frame}", values = period_colors, labels = period_labels) +
+  theme_pomological() +
+  labs(
+    title = "Chronological Map of Edinburgh",
+    subtitle = "Showing expansion of the City from earliest days to the present \nby J.G. Bartholomew - Cartographer to the King",
+    caption = "https://geo.nls.uk/urbhist/"
+  ) +
+  transition_manual(End_Date, cumulative = T)
+
+# plot static map
+map = ggplot() + 
+  geom_sf(
+    data = chrono_map,
+    aes(fill= as.factor(End_Date)),
+    alpha = 0.75, 
+    colour = NA) +
+  scale_fill_manual(name = "period ", values = period_colors, labels = period_labels,
+                    guide = guide_legend(
+                      direction = 'horizontal',
+                      title.position = 'top',
+                      title.hjust = .5,
+                      label.position = 'bottom',
+                      label.hjust = .5,
+                      keywidth = .5,
+                      keyheight = .5,
+                      nrow = 1
+                    ))+
+  labs(
+    title = "Chronological Map of Edinburgh",
+    subtitle = "Showing expansion of the City from earliest days to the present \nby J.G. Bartholomew - Cartographer to the King",
+    caption = "Source: https://geo.nls.uk/urbhist/"
+  ) +
+  theme_pomological() +
+  theme(
+    legend.position = "bottom"
+  ) +
+  transition_manual(End_Date, cumulative = T)
+
+#create animation
+animate(map, width = 800, height = 600)
+
+#save gif
+anim_save("map_anim.gif", map, width = 800,height = 600)
+
+```
+
+## Occupations
+Selection of Edinburgh profession from 1911.
+```{r}
+occupations_edi = read_csv("data/processed/occupations.csv")
+
+base_plot = qmplot(
+  data = occupations_edi,
+  x = long,
+  y = lat,
+  zoom = 14,
+  geom = "blank",
+  maptype = "toner-lines",
+  source = 'stamen'
+)
+
+base_plot +
+  geom_point(mapping = aes(x = long, y = lat), size = .5) +
+  labs(
+    title = "Edinburgh Occupations in 1911",
+    caption = "Source: vug | @topographos2"
+  ) +
+  theme_pomological(
+  ) +
+  theme(
+    axis.title.x=element_blank(),
+    axis.title.y=element_blank()
+  ) +
+  facet_wrap(~ occupation)
+```
+
+
+
+```{r}
+sessionInfo()
+```
+
+
+&nbsp;
+<hr />
+<p style="text-align: center;">A work by <a href="https://github.com/topographos/">Michal Michalski</a></p>
+<p style="text-align: center;"><span style="color: #808080;"><em>michal.m.michalski@durham.ac.uk</em></span></p>
